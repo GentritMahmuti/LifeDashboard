@@ -14,8 +14,7 @@ namespace LifeHangfireJobs.Dtos
         public OrderDto CheapestOrder { get; set; }
         public Product MostSoldProduct { get; set; }
         public Product LeastSoldProductoperty { get; set; }
-        
-
+        public Dictionary<string, int> OrdersByStatus { get; set; }
 
     }
 }

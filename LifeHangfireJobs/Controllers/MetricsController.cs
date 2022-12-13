@@ -14,7 +14,8 @@ namespace LifeHangfireJobs.Controllers
         [HttpGet("Get Metrics")]
         public async Task<IActionResult> GetMetrics()
         {
-            return Ok(_lifeService.GetMetrics());
+            var metrics = _lifeService.GetMetrics();
+            return Ok(metrics);
         }
 
     }

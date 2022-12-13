@@ -3,6 +3,7 @@ using lifeEcommerce.Data.UnitOfWork;
 using lifeEcommerce.Helpers;
 using lifeEcommerce.Models.Entities;
 using LifeHangfireJobs.Dtos;
+using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -52,6 +53,7 @@ namespace LifeHangfireJobs.Services
                                                                     .Include(x => x.Product)
                                                                     .Include(x => x.OrderData)
                                                                     .ToListAsync();
+
             //Request 1 : User that has most orders (including user data)
             var userIdWithMostOrders = orderData.GroupBy(orderData => orderData.UserId)
                                   .Select(x => new
@@ -63,13 +65,15 @@ namespace LifeHangfireJobs.Services
             var userWithMostOrders = _unitOfWork.Repository<User>().GetAll().Where(x => x.Id == userIdWithMostOrders.UserId).FirstOrDefault();
 
             //Request 2 : User that spend most money
+            var userIdWithMostMoneySpent = orderData.GroupBy(orderData => orderData.UserId)
+                                                .Select(x => new
+                                                {
+                                                    UserId = x.Key,
+                                                    TotalSpent = x.Sum(p => p.OrderTotal)
+                                                }).OrderByDescending(x => x.TotalSpent).FirstOrDefault();
 
-            //var userThatSpendMostMoney = orderData.GroupBy(orderData => orderData.UserId)
-            //    .Select(x=> new
-            //    {
-            //        UserId = x.Key,
-            //        TotalOrders = x.Sum()
-           
+            var userWhoSpentMostMoney = _unitOfWork.Repository<User>().GetAll().Where(x => x.Id == userIdWithMostMoneySpent.UserId).FirstOrDefault();
+
             //Request 3 : The Day with the most orders
             var theDayWithTheMostOrders = orders.Select(x => x.OrderData.OrderDate)
                                         .GroupBy(i => i)
@@ -119,20 +123,23 @@ namespace LifeHangfireJobs.Services
             var leastSoldProduct = productsGroup.MinBy(x => x.Value).Key;
 
             //Request 9 : Displaying data that shows how many orders are there based on status
-            var ordersByStatus = orderData.GroupBy(orderData => orderData.OrderStatus)
+            var ordersByStatusData = orderData.GroupBy(orderData => orderData.OrderStatus)
                                                     .Select(x => new
                                                     {
                                                         orderStatus = x.Key,
                                                         MaxOrders = x.Count()
                                                     }).ToList();
 
-            
-
+            Dictionary<string, int> ordersByStatus = new();
+            foreach (var myOrder in ordersByStatusData)
+            {
+                ordersByStatus.TryAdd(myOrder.orderStatus, myOrder.MaxOrders);
+            }
 
             var model = new Metrics()
             {
                 UserWithMostOrders = userWithMostOrders,
-                TheUserWithTheMostMoneySpent = userWithMostOrders,
+                TheUserWithTheMostMoneySpent = userWhoSpentMostMoney,
                 TheDayWithTheMostOrders = DateOnly.FromDateTime(theDayWithTheMostOrders),
                 TheDayWithTheLeastOrders = DateOnly.FromDateTime(theDayWithTheLeastOrders),
                 MostExpensiveOrder = mostExpensiveOrderData,

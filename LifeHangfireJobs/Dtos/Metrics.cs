@@ -1,12 +1,21 @@
-﻿namespace LifeHangfireJobs.Dtos
+﻿using lifeEcommerce.Models.Entities;
+using System.Reflection.Metadata.Ecma335;
+
+namespace LifeHangfireJobs.Dtos
 {
     public class Metrics
     {
 
-        public int MostSoldProduct { get; set; }
-        public double MostExpensiveOrder { get; set; }
-        public double CheapestOrder { get; set; }
-        public DateTime BestDay { get; set; }
+        public User UserWithMostOrders { get; set; }
+        public User TheUserWithTheMostMoneySpent{ get; set; }
+        public DateOnly TheDayWithTheMostOrders { get; set; }
+        public DateOnly TheDayWithTheLeastOrders { get; set; }
+        public OrderDto MostExpensiveOrder { get; set; }
+        public OrderDto CheapestOrder { get; set; }
+        public Product MostSoldProduct { get; set; }
+        public Product LeastSoldProductoperty { get; set; }
+        public List<dynamic> OrdersByStatus { get; set; }
+
 
     }
 }

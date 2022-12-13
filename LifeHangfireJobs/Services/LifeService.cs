@@ -67,7 +67,7 @@ namespace LifeHangfireJobs.Services
                                         .GroupBy(i => i)
                                         .OrderByDescending(grp => grp.Count())
                                         .Select(grp => grp.Key)
-                                        .First();
+                                        .First().Date;
 
 
             //Request 4 : The Day with the least orders
@@ -75,9 +75,9 @@ namespace LifeHangfireJobs.Services
                                         .GroupBy(i => i)
                                         .OrderByDescending(grp => grp.Count())
                                         .Select(grp => grp.Key)
-                                        .Last();
+                                        .Last().Date;
 
-            //Request 5 : Most expensive order
+            //Request 5 : Most expensive order (displaying data regarding it including product name, user name, count and price)
             var maxValue = orders.Max(x => x.Price);
             //Additional data for orders
             var mostExpensiveOrder = orders.First(x => x.Price == maxValue);
@@ -89,7 +89,7 @@ namespace LifeHangfireJobs.Services
                 Price = mostExpensiveOrder.Price
             };
 
-            //Request 6 : Cheapest order
+            //Request 6 : Cheapest order (displaying data regarding it including product name, user name, count and price)
             var minValue = orders.Min(x => x.Price);
             //Additional data for orders
             var cheapestOrder = orders.First(x => x.Price == minValue);
@@ -120,13 +120,18 @@ namespace LifeHangfireJobs.Services
                                                     }).ToList();
 
 
-            //var model = new Metrics()
-            //{
-            //    MostSoldProduct = mostSoldProduct.Id,
-            //    MostExpensiveOrder = (double)maxValue,
-            //    CheapestOrder = (double)minValue,
-            //    BestDay = bestDay
-            //};
+            var model = new Metrics()
+            {
+                UserWithMostOrders = userWithMostOrders,
+                TheUserWithTheMostMoneySpent = userWithMostOrders,
+                TheDayWithTheMostOrders = DateOnly.FromDateTime(theDayWithTheMostOrders),
+                TheDayWithTheLeastOrders = DateOnly.FromDateTime(theDayWithTheLeastOrders),
+                MostExpensiveOrder = mostExpensiveOrderData,
+                CheapestOrder = cheapestOrderData,
+                MostSoldProduct = mostSoldProduct,
+                LeastSoldProductoperty = leastSoldProduct
+            
+            };
 
 
 

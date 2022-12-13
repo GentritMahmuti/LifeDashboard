@@ -77,15 +77,30 @@ namespace LifeHangfireJobs.Services
                                         .Select(grp => grp.Key)
                                         .Last();
 
-            //Most expensive order
+            //Request 5 : Most expensive order
             var maxValue = orders.Max(x => x.Price);
             //Additional data for orders
             var mostExpensiveOrder = orders.First(x => x.Price == maxValue);
-            //Cheapest order
+            OrderDto mostExpensiveOrderData = new OrderDto
+            {
+                ProductName = mostExpensiveOrder.Product.Title,
+                UserName = mostExpensiveOrder.OrderData.User.FirsName,
+                Count = mostExpensiveOrder.Count,
+                Price = mostExpensiveOrder.Price
+            };
+
+            //Request 6 : Cheapest order
             var minValue = orders.Min(x => x.Price);
             //Additional data for orders
             var cheapestOrder = orders.First(x => x.Price == minValue);
 
+            OrderDto cheapestOrderData = new OrderDto
+            {
+                ProductName = cheapestOrder.Product.Title,
+                UserName = cheapestOrder.OrderData.User.FirsName,
+                Count = cheapestOrder.Count,
+                Price = cheapestOrder.Price
+            };
 
             var productsGroup = orders.GroupBy(x => x.Product)
                 .ToDictionary(x => x.Key, y => y.Select(z => z.Count).Sum());

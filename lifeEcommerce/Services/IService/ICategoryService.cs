@@ -7,6 +7,7 @@ namespace lifeEcommerce.Services.IService
     public interface ICategoryService
     {
         Task CreateCategory(CategoryCreateDto categoryToCreate);
+        Task CreateMultipleCategories(List<Category> categoryToCreate);
         Task DeleteCategory(int id);
         Task<List<Category>> GetAllCategories();
         Task<PagedInfo<Category>> CategoriesListView(string search, int page, int pageSize);

@@ -70,6 +70,19 @@ namespace lifeEcommerce.Services
 
             _unitOfWork.Complete();
         }
+        public async Task CreateMultipleCategories(List<Category> categoryToCreate)
+        {
+           
+
+            //var cover = new Cover
+            //{
+            //    Name = coverToCreate.Name
+            //};
+
+            _unitOfWork.Repository<Category>().CreateRange(categoryToCreate);
+
+            _unitOfWork.Complete();
+        }
 
         public async Task<PagedInfo<Category>> CategoriesListView(string search, int page, int pageSize)
         {

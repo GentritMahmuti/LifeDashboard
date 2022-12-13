@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace LifeHangfireJobs.Services
 {
-    public class LifeService
+    public class LifeService : ILifeService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailSender _emailSender;
@@ -32,12 +32,12 @@ namespace LifeHangfireJobs.Services
 
             foreach (var orderId in newlyCreatedOrdersIds)
             {
-                await _emailSender.SendEmailAsync("albion.b@gjirafa.com", "New order to check", $"New order created: {orderId}");
+                await _emailSender.SendEmailAsync("gentrit.mahmuti@life.gjirafa.com", "New order to check", $"New order created: {orderId}");
             }
 
         }
 
-        public async Task GetMetrics()
+        public async Task<Metrics> GetMetrics()
         {
 
 
@@ -62,20 +62,27 @@ namespace LifeHangfireJobs.Services
 
             var userWithMostOrders = _unitOfWork.Repository<User>().GetAll().Where(x => x.Id == userIdWithMostOrders.UserId).FirstOrDefault();
 
+            //Request 2 : User that spend most money
+
+            //var userThatSpendMostMoney = orderData.GroupBy(orderData => orderData.UserId)
+            //    .Select(x=> new
+            //    {
+            //        UserId = x.Key,
+            //        TotalOrders = x.Sum()
+           
             //Request 3 : The Day with the most orders
             var theDayWithTheMostOrders = orders.Select(x => x.OrderData.OrderDate)
                                         .GroupBy(i => i)
                                         .OrderByDescending(grp => grp.Count())
                                         .Select(grp => grp.Key)
-                                        .First().Date;
-
+                                        .FirstOrDefault();
 
             //Request 4 : The Day with the least orders
             var theDayWithTheLeastOrders = orders.Select(x => x.OrderData.OrderDate)
                                         .GroupBy(i => i)
                                         .OrderByDescending(grp => grp.Count())
                                         .Select(grp => grp.Key)
-                                        .Last().Date;
+                                        .LastOrDefault();
 
             //Request 5 : Most expensive order (displaying data regarding it including product name, user name, count and price)
             var maxValue = orders.Max(x => x.Price);
@@ -111,13 +118,15 @@ namespace LifeHangfireJobs.Services
             //Request 8 : Least sold product  (from those that have been sold)
             var leastSoldProduct = productsGroup.MinBy(x => x.Value).Key;
 
-            //Request 9 : Displaing data that shows how many orders are there based on status
+            //Request 9 : Displaying data that shows how many orders are there based on status
             var ordersByStatus = orderData.GroupBy(orderData => orderData.OrderStatus)
                                                     .Select(x => new
                                                     {
                                                         orderStatus = x.Key,
                                                         MaxOrders = x.Count()
                                                     }).ToList();
+
+            
 
 
             var model = new Metrics()
@@ -129,17 +138,10 @@ namespace LifeHangfireJobs.Services
                 MostExpensiveOrder = mostExpensiveOrderData,
                 CheapestOrder = cheapestOrderData,
                 MostSoldProduct = mostSoldProduct,
-                LeastSoldProductoperty = leastSoldProduct
-            
+                LeastSoldProductoperty = leastSoldProduct,
+                OrdersByStatus = ordersByStatus
             };
-
-
-
-
-
-
-
-
+            return model;
         }
     }
 }
